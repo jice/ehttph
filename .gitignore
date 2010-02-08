@@ -1,0 +1,6 @@
+ebin/*
+*~
+*/*~
+!.gitignore
+!ebin/ehttph.app
+
