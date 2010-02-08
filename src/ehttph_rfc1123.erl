@@ -1,7 +1,12 @@
 -module(ehttph_rfc1123).
-%%% Available in httpd_utils (inets) but reimplemented for the following reasons :
-%%%  - to not depend on the inets application for one function
-%%%  - the httpd_utils version accepts timezones other than "GMT", which is forbidden by RFC2616
+-author("JC Sargenton <jice@igwan.eu>").
+
+%%% Available in httpd_utils (inets) but reimplemented for the
+%%%  following reasons :
+%%% - to not depend on the inets application for
+%%%  one function
+%%% - the httpd_utils version accepts timezones other
+%%%  than "GMT", which is forbidden by RFC2616
 
 -export([parse_date/1, make_date/1, make_date/0]).
 
@@ -18,10 +23,10 @@ make_date({{Year, Month, Day} = Date, {H, M, S}}) ->
 
 %% @doc Parses a RFC1123 date and returns it in Erlang format
 parse_date(<<WkDay:3/binary,", ",
-		    Day:2/binary," ",Month:3/binary," ",Year:4/binary," ",
-		    H:2/binary,":",M:2/binary,":",S:2/binary," GMT">>) ->
+	    Day:2/binary," ",Month:3/binary," ",Year:4/binary," ",
+	    H:2/binary,":",M:2/binary,":",S:2/binary," GMT">>) ->
     [DayInt, YearInt, HInt, MInt, SInt] = [list_to_integer(binary_to_list(X))
-				       || X <- [Day, Year, H, M, S]],
+					   || X <- [Day, Year, H, M, S]],
     MonthInt = parse_month_name(Month),
     Date = {YearInt, MonthInt, DayInt},
     ok = valid_date(WkDay, Date),

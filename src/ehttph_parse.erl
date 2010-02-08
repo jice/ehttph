@@ -18,7 +18,10 @@
     {'From' |
      'Proxy-Authorization' |
      'Referer' |
-     'Content-Location',     binary()} |
+     'Content-Location' |
+     'Location' |
+     'Proxy-Authenticate' |
+     'WWW-Authenticate',     binary()} |
     %
     {'Cache-Control' |
      'Pragma' |
@@ -28,7 +31,8 @@
     {'Connection' |
      'Trailer' |
      'Allow' |
-     'Content-Encoding',     [binary()]} |
+     'Content-Encoding' |
+     'Accept-Ranges',        [binary()]} |
     % erlang date value
     {'Date' |
      'If-Modified-Since' |
@@ -37,8 +41,12 @@
      'Expires' |
      'Last-Modified',        date()} |
     %
+    {'Retry-After',          integer() | date()} |
     {'Upgrade',              [#product{}]} |
-    {'User-Agent',           [#product{} | #comment{}]} |
+    %
+    {'User-Agent' |
+     'Server',               [#product{} | #comment{}]} |
+    %
     {'Via',                  [#via_value{}]} |
     {'Warning',              [#warning_value{}]} |
     %
@@ -49,12 +57,17 @@
      'TE',                   [#accept_element{}]} |
     %
     {'If-Match' |
-     'If-None-Match',        [#entity_tag{}]} |
+     'If-None-Match',        '*' | [#entity_tag{}]} |
+    %
+    {'ETag',                 #entity_tag{}} |
+    %
+    {'Vary',                 '*' | [binary()]} |
     %
     {'Host',                 {Hostname::binary(), Port::integer()}} |
     %
     {'Max-Forwards' |
-     'Content-Length',       integer()} |
+     'Content-Length' |
+     'Age',                  integer()} |
     %
     {'Range',                [#byte_range_spec{}]} |
     %
@@ -197,13 +210,6 @@ parse_known_field('If-None-Match', <<"*">>) ->
     '*';
 parse_known_field('If-None-Match', Value) ->
     parse_list_bin(Value, fun parse_entity_tag/1);
-% parse_known_field('If-Range', Value) ->
-%     case read(Value) of
-% 	[{token,_},','|_] ->
-% 	    parse_date(Value);
-% 	PValue ->
-% 	    parse_entity_tag(PValue)
-%     end;
 parse_known_field('If-Range', Value) ->
     parse_alternative(Value, [fun(V)-> parse_entity_tag(read(V)) end,
 			      fun parse_date/1]);

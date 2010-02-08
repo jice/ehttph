@@ -1,4 +1,5 @@
 -module(ehttph_parse_utils).
+-author("JC Sargenton <jice@igwan.eu>").
 
 -export([linify/1, split/2, clean_spaces/1, lowercase/1]).
 
