@@ -87,7 +87,7 @@ parse_field({Name, Value}) ->
     {NormName, parse_known_field(NormName, NormValue)}.
 
 
-%%% @doc  replace fieldname with the canonicalized name (atom)
+%%% @doc  replace field name with the canonical name as atom()
 normalize_name(Name) when is_list(Name) ->
     normalize_name(iolist_to_binary(Name));
 normalize_name(Name) when is_atom(Name) ->
@@ -198,7 +198,6 @@ parse_known_field('From', Value) ->
     % RFC2822
     Value;
 parse_known_field('Host', Value) ->
-    % already parsed upstream to get the target URI
     parse_host(Value);
 parse_known_field('If-Match', <<"*">>) ->
     '*';
@@ -223,14 +222,12 @@ parse_known_field('Proxy-Authorization', Value) ->
 parse_known_field('Range', Value) ->
     parse_byte_range_specs(read(Value));
 parse_known_field('Referer', Value) ->
-    %% TODO : ( absoluteURI | relativeURI )
+    %% TODO : ( absoluteURI | relativeURI ) RFC3986
     Value;
 parse_known_field('TE', Value) ->
     parse_accept_value(Value, fun parse_simple_range/1);
 parse_known_field('User-Agent', Value) ->
-    %% 1*( product | comment )
     parse_product_comment(read(Value));
-
 parse_known_field('Accept-Ranges', Value) ->
     parse_list_bin(Value, fun parse_single_ci_token/1);
 parse_known_field('Age', Value) ->
@@ -238,27 +235,22 @@ parse_known_field('Age', Value) ->
 parse_known_field('ETag', Value) ->
     parse_entity_tag(read(Value));
 parse_known_field('Location', Value) ->
-    %% TODO : absoluteURI [ "#" fragment ]
+    %% TODO : absoluteURI [ "#" fragment ] RFC3986
     Value;
 parse_known_field('Proxy-Authenticate', Value) ->
     %% TODO : 1#challenge
     Value;
 parse_known_field('Retry-After', Value) ->
-    %% TODO : ( HTTP-date | delta-seconds )
     parse_alternative(Value, [fun parse_integer/1, fun parse_date/1]);
 parse_known_field('Server', Value) ->
-    %% 1*( product | comment )
     parse_product_comment(read(Value));
 parse_known_field('Vary',  <<"*">>) ->
     '*';
 parse_known_field('Vary',  Value) ->
-    %% ( "*" | 1#field-name )
     parse_list_bin(Value, fun parse_single_ci_token/1);
 parse_known_field('WWW-Authenticate', Value) ->
     %% TODO : 1#challenge
     Value;
-    
-
 parse_known_field('Allow', Value) ->
     parse_list_bin(Value, fun parse_single_cs_token/1);
 parse_known_field('Content-Encoding', Value) ->
@@ -268,7 +260,7 @@ parse_known_field('Content-Language', Value) ->
 parse_known_field('Content-Length', Value) ->
     parse_integer(Value);
 parse_known_field('Content-Location', Value) ->
-    %% TODO : ( absoluteURI | relativeURI )
+    %% TODO : ( absoluteURI | relativeURI ) RFC3986
     Value;
 parse_known_field('Content-MD5', Value) ->
     parse_md5_digest(Value);
@@ -323,7 +315,7 @@ parse_language_range([{token,LanguageRange}]) ->
 	    #language_range{tag=Tag, subtag=Subtag}
     end.
 
-%%% Binary values
+%%% Binary (not tokenized) values
   
 parse_date(Bin) ->
     ehttph_rfc1123:parse_date(Bin).
@@ -336,8 +328,6 @@ parse_md5_digest(Bin) ->
 
 %% @doc  Normalizes and parses the host part.
 %% @spec (host()) -> {HostName::binary(),Port::integer()}
-%parse_host(undefined) ->
-%    {undefined, undefined};
 parse_host(Host) ->
     case split(Host, $:) of
 	{Hostname, Port} ->
@@ -349,7 +339,8 @@ parse_host(Host) ->
 
 %%% Symbolic values
 
-%% @spec (ListInTokens::[token()]) -> [ElemParseFun(ElementInTokens::[token()])]
+%% @spec (ListInTokens::[token()]) ->
+%%           [ElemParseFun(ElementInTokens::[token()])]
 parse_list_bin(Bin, ElemParseFun) ->
     parse_list_symbols(read(Bin), ElemParseFun).
 
@@ -439,9 +430,9 @@ parse_accept_element(Tokens) ->
 %% element_to_accept_element(#element{name=Range, params=Params}) ->
 %%     {RangeParams, QValue, ExtParams} = split_accept_params(Params),
 %%     #accept_element{range=Range,
-%% 		    range_params=RangeParams,
-%% 		    qvalue=QValue,
-%% 		    ext_params=ExtParams}.
+%% 		       range_params=RangeParams,
+%% 		       qvalue=QValue,
+%% 		       ext_params=ExtParams}.
 
 split_accept_params(Params) ->
     {ValueParams, Rest} =
@@ -527,7 +518,6 @@ parse_warning_value(Value) ->
 parse_warn_code([{token,WarnCode}|Rest]) when size(WarnCode) =:= 3 ->
     {parse_integer(WarnCode), Rest}.
 
-
 parse_language(Language) ->
     parse_language(lowercase(Language), []).
 
@@ -556,7 +546,6 @@ parse_expectation(Tokens) ->
 			      undefined ->
 				  undefined
 			  end}.
-
 
 parse_entity_tag([{token,<<"W">>},'/',{quoted_string,OpaqueTag}]) ->
     #entity_tag{weak=true,opaque=OpaqueTag};
@@ -615,7 +604,6 @@ parse_media_type(Tokens) ->
     #media_type{type=lowercase(Type),
 		subtype=lowercase(SubType),
 		params=Params}.
-
 
 %%% scanning
 
@@ -702,8 +690,7 @@ read_comment(<<?OPAR, _/binary>> = Bin, TextAcc, Acc) ->
 read_comment(<<Char, Rest/binary>>, TextAcc, Acc) when ?TEXT(Char) ->
     read_comment(Rest, <<TextAcc/binary,Char>>, Acc).
     
-    
-%% @ doc split a list into a number of sublist delimited by Separator
+%% @ doc  split a list into a number of sublist delimited by Separator
 tokenize(List, Separator) ->
     tokenize(List, Separator, []).
 
@@ -727,7 +714,7 @@ tokenize(List, Separator, Acc) ->
 
 
 
-%%% TESTS
+%%% EUNIT TESTS
 
 cachecontrol_test() ->
     {'Cache-Control',
