@@ -1,3 +1,12 @@
+%% @author JC Sargenton <jice@igwan.eu>
+%% @copyright 2010 JC Sargenton
+%%
+%% @doc ehttph HTTP header fields library
+%% @end
+%%
+%% Licensed under the MIT license:
+%% http://www.opensource.org/licenses/mit-license.php
+
 %% character classes
 
 -define(DIGIT(X), $0 =< X andalso X =< $9).

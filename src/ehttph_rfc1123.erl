@@ -1,12 +1,14 @@
+%% @author JC Sargenton <jice@igwan.eu>
+%% @copyright 2010 JC Sargenton
+%%
+%% @doc ehttph HTTP header fields library
+%% @end
+%%
+%% Licensed under the MIT license:
+%% http://www.opensource.org/licenses/mit-license.php
+
 -module(ehttph_rfc1123).
 -author("JC Sargenton <jice@igwan.eu>").
-
-%%% Available in httpd_utils (inets) but reimplemented for the
-%%%  following reasons :
-%%% - to not depend on the inets application for
-%%%  one function
-%%% - the httpd_utils version accepts timezones other
-%%%  than "GMT", which is forbidden by RFC2616
 
 -export([parse_date/1, make_date/1, make_date/0]).
 

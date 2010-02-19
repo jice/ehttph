@@ -1,3 +1,12 @@
+%% @author JC Sargenton <jice@igwan.eu>
+%% @copyright 2010 JC Sargenton
+%%
+%% @doc ehttph HTTP header fields library
+%% @end
+%%
+%% Licensed under the MIT license:
+%% http://www.opensource.org/licenses/mit-license.php
+
 -type bin()    :: binary().
 -type qvalue() :: float().
 -type md5_binary() :: binary(). % the parsed MD5 as a 16 bytes binary 

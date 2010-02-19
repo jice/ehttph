@@ -1,10 +1,19 @@
+%% @author JC Sargenton <jice@igwan.eu>
+%% @copyright 2010 JC Sargenton
+%%
+%% @doc ehttph HTTP header fields library
+%% @end
+%%
+%% Licensed under the MIT license:
+%% http://www.opensource.org/licenses/mit-license.php
+
 -module(ehttph_parse).
 -author("JC Sargenton <jice@igwan.eu>").
 
 -import(ehttph_parse_utils,
 	[split/2, linify/1, clean_spaces/1, lowercase/1]).
 
--export([parse_field/1]).
+-export([parse_field/1, name_to_atom/1]).
 
 
 -include("../include/ehttph_records.hrl").
@@ -159,7 +168,7 @@ name_to_atom(<<"content-md5">>)         -> 'Content-MD5';
 name_to_atom(<<"content-range">>)       -> 'Content-Range';
 name_to_atom(<<"content-type">>)        -> 'Content-Type';
 % Other Header Fields
-name_to_atom(FieldName)                 -> FieldName.
+name_to_atom(FieldName)                 -> lowercase(FieldName).
 
 %% @doc  parses a known field's value
 %% @spec (field_name(), field_value()) -> parsed_value()
@@ -425,14 +434,6 @@ parse_accept_element(Tokens) ->
 		    range_params=RangeParams,
 		    qvalue=QValue,
 		    ext_params=ExtParams}.
-
-%% @spec (#element{}) -> #accept_element{}
-%% element_to_accept_element(#element{name=Range, params=Params}) ->
-%%     {RangeParams, QValue, ExtParams} = split_accept_params(Params),
-%%     #accept_element{range=Range,
-%% 		       range_params=RangeParams,
-%% 		       qvalue=QValue,
-%% 		       ext_params=ExtParams}.
 
 split_accept_params(Params) ->
     {ValueParams, Rest} =
